@@ -1,0 +1,116 @@
+//check if oper in S is in strictly increasing order
+bool is_precstack(dict_t D, stack_t S)  
+//@requires D != NULL && S != NULL;
+{   
+    stack_t S_temp = stack_new();
+    int prev_prec = 3;
+    bool res = true;
+
+    //check to see if curr_prev is bigger than prev, if so return false 
+    while(!stack_empty(S)){
+        string elem = pop(S);
+        push(S_temp, elem);
+        int curr_prec = dict_lookup(D, elem);
+        if(curr_prec >= prev_prec) res = false;
+        prev_prec = curr_prec;
+    }
+
+    while(!stack_empty(S_temp)){
+        string elem = pop(S_temp);
+        push(S, elem);
+    }
+    return res;
+}
+
+//implement the EXP algorithm, return NULL if input not well-formed
+queue_t parse(dict_t D, queue_t input)  
+//@requires D != NULL && input != NULL; 
+//@ensures \result != NULL && queue_empty(input);
+{   
+    queue_t res = queue_new();
+    queue_t num_q = queue_new();
+    queue_t oper_q = queue_new();
+
+    int num_count = 0;
+    int oper_count = 0;
+    int track = 0;
+
+    //creates two queues that store oper and num respectively
+    while(!queue_empty(input))
+    {
+        track++;
+        string x = deq(input);
+        char c = string_charat(x, 0);
+        
+        if(is_numeric(c)){
+            num_count++;
+            enq(num_q, x);
+        }else{
+            if(!(dict_lookup(D, x) >= 0 && dict_lookup(D, x) <= 2)){
+                return NULL;
+            } 
+            enq(oper_q, x);
+            oper_count++;
+        }
+        //keep track that input is valid, if not return NULL
+        if(track%2 == 0 && num_count != oper_count) return NULL;
+        if(track == 1 && oper_count > num_count) return NULL;
+        if(track%2 != 0 && num_count <= oper_count) return NULL;   
+    }
+    print("hello");
+    //keep track that input is valid, return NULL if not
+    if(num_count != oper_count + 1) return NULL;
+
+    string prev_num = "";
+    string prev_oper = "";
+
+    queue_t num_temp = queue_new();
+    stack_t oper_temp = stack_new();
+
+    string curr_num = deq(num_q);
+    string curr_oper = "||"; //smallest oper
+    enq(num_temp, curr_num);
+
+    //storing num and oper to res
+    while(!queue_empty(num_q)){
+        curr_num = deq(num_q);
+        curr_oper = deq(oper_q);
+
+        int prec = dict_lookup(D, curr_oper);
+        int prev_prec = dict_lookup(D, prev_oper);
+
+        if(prec > prev_prec){
+            enq(num_temp, curr_num);
+            push(oper_temp, curr_oper);
+        }else{
+            while(!queue_empty(num_temp)){
+                string x = deq(num_temp);
+                enq(res, x);
+            }
+            enq(num_temp, curr_num);
+
+            while(!stack_empty(oper_temp)){
+                string y = pop(oper_temp);
+                enq(res, y);
+            }
+            push(oper_temp, curr_oper);
+        } 
+        prev_num = curr_num;
+        prev_oper = curr_oper;
+    }
+
+    //store remaining num and oper in temp_queue to res
+    while(!queue_empty(num_temp)){
+        string x = deq(num_temp);
+        enq(res, x);
+    }
+    enq(num_temp, curr_num);
+
+    while(!stack_empty(oper_temp)){
+        string y = pop(oper_temp);
+        enq(res, y);
+    }
+    push(oper_temp, curr_oper);
+
+    return res;
+}

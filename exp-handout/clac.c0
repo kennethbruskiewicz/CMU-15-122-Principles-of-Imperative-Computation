@@ -1,0 +1,89 @@
+#use <util>
+
+//Source: https://www.cs.cmu.edu/~15122/slides/review/01-contracts.pdf
+//power function
+int POW (int b, int e)
+//@requires e >= 0;
+{
+  if (e == 0) return 1;
+  else return POW(b, e-1) * b;
+}
+
+
+/*dequeue tokens from the queue Q and process them according to 
+the Clac definition*/
+void eval(istack_t S, queue_t Q)  
+//@requires S != NULL && Q != NULL;  
+//@ensures queue_empty(Q);  
+{
+
+    stack_t temp = stack_new();
+
+    //keep track of numbers and operators to ensure that  the input is valid
+    int track = 1;
+    int elem_count = 0; 
+    int oper_count = 0;
+
+    while(!queue_empty(Q))
+    //@loop_invariant !(oper_count > elem_count);
+    {
+        string elem = deq(Q);
+        char c = string_charat(elem, 0);
+
+        //check if elem is an oper or num
+        if(string_equal(elem, "+") || string_equal(elem, "-") 
+            || string_equal(elem, "*") || string_equal(elem, "/")
+            || string_equal(elem, "**")){
+            
+            if(istack_empty(S)) error("invalid input");
+            int num1 = ipop(S);
+            if(istack_empty(S)) error("invalid input");
+            int num2 = ipop(S);
+            int res = 0;
+            if(num1 < int_min() || num1 > int_max() 
+               || num2 < int_min() || num2 > int_max()){
+                error("An arithmetic error occurred");
+            }
+
+
+            oper_count++;
+
+            if(string_equal(elem, "+")){
+                res = num1 + num2;
+            }
+            else if(string_equal(elem, "-")){
+                res = num2 - num1;
+            }
+            else if(string_equal(elem, "*")){
+                if((num2 == int_min() && num1 == -1) 
+                   || (num1 == int_min() && num2 == -1)){
+                    error("An arithmetic error occurred");
+                }
+                res = num1 * num2;
+            }
+            else if(string_equal(elem, "/")){
+                if(num1 == 0 || (num2 == int_min() && num1 == -1)){
+                    error("An arithmetic error occurred");
+                }
+                res = num2 / num1;
+            }else{
+                if(num1 < 0) res = (1 / POW(num2, -1*num1));
+                else res = POW(num2, num1);
+            }
+            if(res < int_min() || res > int_max()){
+                error("An arithmetic error occurred");
+            }
+            ipush(S, res);
+        }else{
+            int* num = alloc(int);
+            num = parse_int(elem, 10);
+            elem_count ++; 
+
+            if(num == NULL){
+                error("invalid operator or an arithmetic error occurred");
+            }
+
+            ipush(S, *num); 
+        }
+    }
+}

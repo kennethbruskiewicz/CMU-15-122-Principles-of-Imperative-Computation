@@ -1,0 +1,67 @@
+bool even(void* x)
+//@requires x == NULL || \hastag(int*, x);
+{
+    if(x== NULL) 
+        return false;
+    return *(int*)(x) >= 0 && *(int*)(x) % 2 == 0;
+}
+
+bool odd(void* x)
+//@requires x == NULL || \hastag(int*, x);
+{
+    return x == NULL || (*(int*)(x) > 0 && *(int*)(x) % 2 == 1);
+}
+
+bool incr(void* x)
+//@requires x == NULL || \hastag(int*, x);
+{
+    if(x == NULL){
+        return true;
+    }     
+    else{
+        int* y =(int*)x;
+        *y += 1;
+        x = (void*)y;
+    }
+    return true;
+}
+
+void* find_negative(void* accum, void* x)
+//@requires x == NULL || \hastag(int*, x);
+//@requires \hastag(int*, accum);
+//@ensures \hastag(int*,\result);
+{
+    if(x == NULL)
+        return accum;
+    else if(accum != NULL && *(int*)accum < 0)
+        return accum;
+    else if(*(int*)x < 0)
+        return x;
+    else
+        return accum;
+}
+
+void* copy(void* x1, void* x2)
+//@requires \hastag(queue_t, x1) && \hastag(int*, x2);
+//@ensures \hastag(queue_t, \result);
+{
+    enq((queue_t)x1, x2);
+    return x1;
+}
+
+void* insert(void* x1, void* x2)
+//@requires x1 != NULL && x2 != NULL;
+//@requires \hastag(int*, x1) && \hastag(int*, x2);
+//@ensures \hastag(int*, \result);
+{
+    int* d1 = (int*)x1;
+    int* d2 = (int*)x2;
+    if(*d2 > *d1){
+        int temp = *d1;
+        *d1 = *d2;
+        *d2 = temp;
+    }
+    return x1;
+}
+
+

@@ -1,0 +1,81 @@
+#use <conio>
+#use <string>
+#use <util>
+
+// You are welcome to define helper functions for your tests
+
+int main() {
+  // Create a few ropes
+  rope_t r1 = rope_new("happ");
+  rope_t r2 = rope_new("y birth");
+  rope_t r3 = rope_new("day!");
+  rope_t R = rope_join(r1, r2);
+  R = rope_join(R, r3);
+  assert(string_equal(rope_tostring(R), "happy birthday!"));
+  assert(string_equal(R->right->data, "day!"));
+  assert(string_equal((R->left->right)->data, "y birth"));
+  assert(string_equal((R->left->left)->data, "happ"));
+
+  rope_t a1 = rope_join(rope_new("t"), rope_new("otally"));
+  rope_t a2 = rope_join(rope_new("efficien"), rope_new("t"));
+  rope_t A = rope_join(a1, a2);
+  assert(rope_charat(A, 0) =='t');
+  assert(rope_charat(A, 6) == 'y');
+  assert(rope_charat(A, 11) == 'c');
+  rope_t R3 = rope_sub(A, 1, 16);
+  R3 = rope_sub(A, 2, 11);
+
+  rope_t [] B = alloc_array(rope_t, 3);
+  B[0] = rope_join(rope_new("a"), rope_new("br"));
+  B[1] = rope_join(rope_new("abr"), rope_new("a"));
+  rope_t b = rope_join(rope_new("br"), rope_new("a"));
+  B[2] = rope_join(rope_new("a"), b);
+  rope_reduce(B, 3);
+
+  rope_t [] C = alloc_array(rope_t, 4);
+  rope_t c = rope_join(rope_new("br"), rope_new("a"));
+  C[0] = rope_join(rope_new("a"), c);
+  C[1] = rope_new("");
+  C[2] = rope_join(rope_new("abr"), rope_new("e"));
+  C[3] = rope_new("bre");
+  rope_reduce(C, 4);
+
+  rope_t[] D = alloc_array(rope_t, 0);
+  rope_reduce(D, 0);
+
+  rope_t[] E = alloc_array(rope_t, 3);
+  E[0] = rope_new("");
+  E[1] = rope_new("");
+  E[2] = rope_new("");
+  rope_reduce(E, 3);
+  assert(E[0] == NULL);
+  assert(E[1] == NULL);
+  assert(E[2] == NULL);
+  assert(E[0] == E[1]);
+
+  rope_t [] F = alloc_array(rope_t, 2);
+  rope_t f = rope_join(rope_new("a"), rope_new("a"));
+  F[0] = rope_join(f, rope_new("a"));
+  F[0] = rope_join(F[0], rope_new("a"));
+  F[0] = rope_join(F[0], rope_new("a"));
+
+  f = rope_join(rope_new("a"), rope_new("a"));
+  rope_t f1 = rope_join(rope_new("a"), rope_new("a"));
+  rope_t f2 = rope_join(rope_new("a"), rope_new("a"));
+  rope_t f3 = rope_join(rope_new("a"), rope_new("a"));
+  f = rope_join(f, f1);
+  f2 = rope_join(f2, f3);
+  F[1] = rope_join(f, f2);
+
+  assert(F[0]->left->left->left->left == F[0]->left->left->left->right);
+  assert(F[0]->left->left->left->left == F[0]->left->left->right);
+  assert(F[0]->left->left->left->left == F[0]->left->right);
+  assert(F[0]->left->left->left->left == F[0]->right);
+  assert(F[0]->left == F[1]->left);
+  assert(F[0]->left == F[1]->right);
+
+  // Using them, test the functions you wrote in file rope.c1
+
+  println("All tests passed!");
+  return 0;
+}

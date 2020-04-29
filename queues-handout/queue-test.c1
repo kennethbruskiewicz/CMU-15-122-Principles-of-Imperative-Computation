@@ -1,0 +1,93 @@
+#use <conio>
+
+// You are welcome to define helper functions for your tests
+
+int main() {
+  // Create a few queues
+  queue_t A = queue_new();
+  assert(is_queue(A));
+  int* a1 = alloc(int);
+  *a1 = 8;
+  int* a2 = alloc(int);
+  *a2 = 5;
+  int* a3 = alloc(int);
+  *a3 = 15;
+  enq(A, (void*)a1);
+  enq(A, (void*)a2);
+  enq(A, (void*)a3);
+  assert(queue_size(A) == 3);
+  deq(A);
+  assert(queue_size(A) == 2);
+  void* r = queue_peek(A, 0);
+  assert(*(int*)r == 5);
+  assert(queue_all(A, &even) == false);
+  assert(queue_all(A, &odd) == true);
+  assert(is_queue(A));
+  void* x = queue_iterate(A, (void*)queue_new(), &copy);
+  //print_queue(A, &print_elem);
+  queue_reverse(A);
+  //print_queue(A, &print_elem);
+
+  int* a4 = alloc(int);
+  *a4 = -1;
+  int* a5 = alloc(int);
+  *a5 = 2;
+  int* a6 = alloc(int);
+  *a6 = -2;
+  enq(A, (void*)a4);
+  enq(A, (void*)a5);
+  enq(A, (void*)a6);
+
+  //print_queue(A, &print_elem);
+  void* d = queue_iterate(A, NULL, &find_negative);
+  void* e = insert((void*)a6, (void*)a4);
+
+  queue_t B = queue_new();
+  int* b1 = alloc(int);
+  *b1 = 5;
+  int* b2 = alloc(int);
+  *b2 = 4;
+  int* b3 = alloc(int);
+  *b3 = 3;
+
+  /*
+  print_queue(B, &print_elem);
+  print("here");
+  insert((void*)b2, (void*)b3); //4
+  printint(*b2);
+  insert((void*)b2, (void*)b1); //2
+  printint(*b2);
+  insert((void*)b3, (void*)b1); //4
+  printint(*b3);
+  insert((void*)b1, (void*)b3); //4
+  printint(*b1);
+  insert((void*)b3, (void*)b2); //4
+  printint(*b3);
+  */
+
+  println("");
+  enq(B, (void*)b1);
+  enq(B, (void*)b2);
+  enq(B, (void*)b3);
+  print_queue(B, &print_elem);
+  queue_t R = queue_new();  
+  while (queue_size(B) > 0) {  
+      int* p1 = alloc(int);  
+      void* p2 = deq(B);  
+      //@assert p2 != NULL && \hastag(int*, p2);  
+      *p1 = *(int*)p2; 
+      printint(*p1); 
+      queue_iterate(R, (void*)p1, &insert);  
+      printint(*p1);
+      enq(R,(void*)p1);  
+  }  
+  println("");
+  print_queue(R, &print_elem);
+
+  //printint(*(int*)queue_iterate(A,NULL,&find_negative));
+  // Using them, test the functions you wrote in file queue.c1
+
+  println("All tests passed!");
+  return 0;
+}
+

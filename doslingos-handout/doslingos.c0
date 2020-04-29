@@ -1,0 +1,130 @@
+//return false if the word in corpus is not in vocabList 
+bool count_vocab_Helper(string[] vocab, int[] freq, int v,  
+                        bool fast, string currVocab)
+//@requires v == \length(vocab) && v == \length(freq);  
+//@requires is_sorted(vocab, 0, v);  
+{   
+    int index = -1; //set index to -1 = not in vocab list
+    if(fast){
+        index = binsearch(currVocab, vocab, v);
+    }else{
+        index = linsearch(currVocab, vocab, v);  
+    }
+
+    //update freq of existing words in vocab list
+    if(index >= 0){
+        freq[index] += 1;
+        return true;
+    }
+    return false;
+}
+
+//count number of occurences of words in corpus that is not in vocab list
+int count_vocab(string[] vocab, int[] freq, int v,  
+                string corpus,  
+                bool fast)  
+//@requires v == \length(vocab) && v == \length(freq);  
+//@requires is_sorted(vocab, 0, v); 
+//@ensures \result >= 0 && v == \length(vocab) && v == \length(freq);
+{  
+    //convert corpus to a string array
+    bundle_t str = read_words(corpus);
+    int corpusLength = string_bundle_length(str);
+    string[] corpusArr = string_bundle_array(str);
+    //@assert corpusLength >= 0 && \length(corpusArr) == corpusLength;
+
+    int count = 0;
+
+    for(int i = 0; i < corpusLength; i++)
+    //@loop_invariant i >= 0 && count >= 0 && i <= corpusLength;
+    {   
+        string currVocab = corpusArr[i];
+        bool found = count_vocab_Helper(vocab, freq, v, fast, currVocab);
+        if (!found) count += 1;
+
+    }
+    return count;
+}
+
+/*Source: https://www.cs.cmu.edu/~fp/courses/15122-f10/lectures/05-subqsorts/
+mergesort.c0 */
+
+//mergesort, swap elem both in freq and vocab list
+void merge(int[] freq, string[] vocab, int lo, int mid, int hi)
+//@requires 0 <= lo && lo <= mid && mid <= hi && hi <= \length(freq);
+//@requires is_sorted_int(freq, lo, mid) && is_sorted_int(freq, mid, hi);
+//@ensures is_sorted_int(freq, lo, hi);
+{ 
+    int[] int_result = alloc_array(int, hi-lo);
+    string[] str_result = alloc_array(string, hi-lo);
+    int i = lo; 
+    int j = mid; 
+    int k = 0;
+
+    while (i < mid && j < hi)
+    //@loop_invariant lo <= i && i <= mid;
+    //@loop_invariant mid <= j && j <= hi;
+    //@loop_invariant k == (i - lo) + (j - mid);
+    {
+        if (freq[i] <= freq[j]) {
+            int_result[k] = freq[i]; 
+            str_result[k] = vocab[i]; 
+            i++;
+        } else {
+            int_result[k] = freq[j]; 
+            str_result[k] = vocab[j]; 
+            j++;
+        }
+        k++;
+    }
+
+    //@assert i == mid || j == hi;
+    
+    
+    while (i < mid)
+    //@loop_invariant i <= mid;
+    {
+        int_result[k] = freq[i]; 
+        str_result[k] = vocab[i]; 
+        i++; 
+        k++;}
+
+    while (j < hi)
+    //@loop_invariant j <= hi;
+    { 
+        int_result[k] = freq[j];
+        str_result[k] = vocab[j]; 
+        j++;
+        k++; }
+
+    for (k = 0; k < hi-lo; k++) 
+    //@loop_invariant 0<= k && k <= hi - lo;
+    { 
+        freq[lo+k] = int_result[k];
+        vocab[lo+k] = str_result[k];}
+
+}
+
+//mergesort 
+void sort(int[]freq, string[] vocab, int lo, int hi)
+//@requires \length(freq) == \length(vocab);  
+//@requires 0 <= lo && lo <= hi && hi <= \length(freq);
+//@ensures is_sorted_int(freq, lo, hi);
+{   
+    if (hi - lo <= 1) return;
+    int mid = lo + (hi - lo)/2;
+
+    //@assert lo <= mid && mid <= hi;
+    sort(freq, vocab, lo, mid); //@assert is_sorted_int(freq, lo, mid);
+    sort(freq, vocab, mid, hi); //@assert is_sorted_int(freq, mid, hi);
+    merge(freq, vocab, lo, mid, hi); //@assert is_sorted_int(freq, lo, hi);
+}
+
+//sort frequency array using mergesort
+void sort_by_freq(string[] vocab, int[] freq, int v) 
+//@requires is_sorted(vocab, 0, v);   
+//@requires v == \length(vocab) && v == \length(freq);  
+//@ensures is_sorted_int(freq, 0, v);
+{   
+    sort(freq, vocab, 0, v);
+}

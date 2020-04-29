@@ -1,0 +1,113 @@
+#use <args>
+#use <conio>
+
+//give human-readable answers to hw questions 
+int main() {
+    args_t args = args_parse();
+    int argc = args->argc;
+    string[] argv = args->argv;
+
+    string dictionary = argv[0];
+    string corpus = argv[1];
+
+    //create dictionary array
+    bundle_t dict = read_words(dictionary);
+    int dictLength = string_bundle_length(dict);
+    string[] dictArr = string_bundle_array(dict);
+    int[] dictFreq = alloc_array(int, dictLength);
+    //@assert dictLength >= 0 && \length(dictArr) == dictLength;
+
+    //create corpus array
+    bundle_t corp = read_words(corpus);
+    int corpusLength = string_bundle_length(corp);
+    string[] corpusArr = string_bundle_array(corp);
+    //@assert corpusLength >= 0 && \length(corpusArr) == corpusLength;
+
+    count_vocab(dictArr, dictFreq, dictLength, corpus, true);
+    sort_by_freq(dictArr, dictFreq, dictLength);
+    //@assert is_sorted_int(dictFreq, 0, dictLength);
+
+    //question 1
+    println("The four most common words in the text corpus are: ");
+
+    for(int i = 1; i <= 4; i++)
+    //@loop_invariant i >= 1;
+    {
+        printint(i);
+        print(". ");
+        print(dictArr[dictLength - i]);
+        print(" (appears ");
+        printint(dictFreq[dictLength - i]);
+        print(" times)");
+        println("");
+    }
+    
+    //question 2
+    print("These words appears 82 times in the text corpus: ");
+
+    int targetNum = 82;
+
+    for(int i = 0; i < dictLength; i++)
+    //@loop_invariant i >= 0;
+    {
+        if(dictFreq[i] == targetNum){
+            print(dictArr[i]);
+            print(" ");
+        }
+    }
+    println("");
+
+    //question 3
+    int prevFreq = dictFreq[0];
+    int i = 1;
+    int count = 0; 
+
+    print("The two smallest frequencies that do not occur are: ");
+
+    while(i < dictLength && count < 2)
+    //@loop_invariant count >= 0 && i >= 0;
+    {
+        int currFreq = dictFreq[i];
+        int diff = currFreq - prevFreq;
+
+        if(diff > 1){
+            printint(prevFreq + 1);
+            print(" ");
+            count++;
+            prevFreq = prevFreq + 1;
+        }else{
+            prevFreq = currFreq;
+            i++;
+        }
+    }
+
+    println(" in the corpus.");
+
+
+    //question 4
+    int prevCount = 0;
+    int newCount = 0;
+    int totalCount = 0;
+
+    print("In this corpus, there are ");
+
+    for(int j = 1; j < dictLength; j++)
+    /*@loop_invariant j >= 1 && prevCount >= 0 && newCount >= 0 
+                      && totalCount >= 0; @*/
+    {
+        if(dictFreq[j] == dictFreq[j-1]){
+            newCount++;
+        }else{
+            if(newCount > prevCount){
+                totalCount++;
+            }
+            prevCount = newCount;
+            newCount = 0;
+        }
+    }
+    printint(totalCount - 1);
+    print(" times that a frequency f has strictly fewer words at that ");
+    println("frequency than frequency f+1");
+
+    return 0;
+}

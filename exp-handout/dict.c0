@@ -1,0 +1,31 @@
+/*
+ * Interface for dictionaries
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <string>
+#use <conio>
+
+/* Implementation of dictionaries */
+typedef struct dict_header dict;
+/* insert your implementation code between HERE */
+
+
+/* and HERE */
+typedef dict* dict_t;
+
+
+/* Interface of dictionaries (leave this alone) */
+
+// typedef ______* dict_t;
+
+// Returns NULL if the input array has the same operator twice
+dict_t dict_new(string[] A, int n)
+  /*@requires \length(A) == n; @*/
+  /*@requires is_infix_array(A, n); @*/ ;
+
+// Returns -1 if no definition is found
+int dict_lookup(dict_t D, string oper)
+  /*@requires D != NULL; @*/
+  /*@ensures \result >= -1; @*/ ;

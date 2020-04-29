@@ -1,0 +1,173 @@
+#use <conio>
+#use <parse>
+
+// You are welcome to define helper functions for your tests
+
+int main(){
+
+  // Later on, read some vocabularies from file and create their 
+  //frequency arrays
+  string filename1 = "texts/scott_tweet.txt";
+
+  string[] vocab1 = alloc_array(string, 3);
+  vocab1[0] = "burrow";
+  vocab1[1] = "his";
+  vocab1[2] = "phil";
+
+  int[] freq1 = alloc_array(int, 3);
+  freq1[0] = 1;
+  freq1[1] = 1;
+  freq1[2] = 1;
+
+  // Using them, test the functions you wrote in file doslingos.c0
+
+  assert(count_vocab(vocab1, freq1, 3, filename1 , false) == 3);
+  assert(freq1[0] == 2);
+  assert(freq1[1] == 2);
+  assert(freq1[2] == 2);
+
+  sort_by_freq(vocab1, freq1, 3); 
+  assert(string_equal(vocab1[2],"phil"));
+  assert(string_equal(vocab1[1],"his"));
+  assert(string_equal(vocab1[0],"burrow"));
+
+  freq1[0] = 4;
+  freq1[1] = 3;
+  freq1[2] = 2;
+  assert(count_vocab(vocab1, freq1, 3, filename1 , true) == 3);
+  assert(freq1[0] == 5);
+  assert(freq1[1] == 4);
+  assert(freq1[2] == 3);
+
+  sort_by_freq(vocab1, freq1, 3); 
+  assert(string_equal(vocab1[0],"phil"));
+  assert(string_equal(vocab1[1],"his"));
+  assert(string_equal(vocab1[2],"burrow"));
+
+  /////////////////////////////////////////////////////////////////////////////
+
+  // Create a few vocabularies and the corresponding frequences by hand
+  string[] vocab2 = alloc_array(string, 2);
+  vocab2[0] = "ha";
+  vocab2[1] = "lol";
+
+  int[] freq2 = alloc_array(int, 2);
+  freq2[0] = 0;
+  freq2[1] = 0;
+
+  // Using them, test the functions you wrote in file doslingos.c0
+  assert(count_vocab(vocab2, freq2, 2, "texts/15122.txt", false) == 1);
+  assert(freq2[0] == 3);
+  assert(freq2[1] == 2);
+
+  sort_by_freq(vocab2, freq2, 2); 
+  assert(string_equal(vocab2[1],"ha"));
+  assert(string_equal(vocab2[0],"lol"));
+  assert(is_sorted_int(freq2, 0, 2));
+
+  string[] vocab3 = alloc_array(string, 0);
+  int[] freq3 = alloc_array(int, 0);
+
+  assert(count_vocab(vocab3, freq3, 0, "texts/15122.txt", true) == 6);
+  sort_by_freq(vocab3, freq3, 0); 
+
+  string[] vocab4 = alloc_array(string, 8);
+  vocab4[0] = "burrow";
+  vocab4[1] = "ha";
+  vocab4[2] = "his";
+  vocab4[3] = "is";
+  vocab4[4] = "list";
+  vocab4[5] = "of";
+  vocab4[6] = "out";
+  vocab4[7] = "winter";
+
+  int[] freq4 = alloc_array(int, 8);
+  freq4[0] = 1;
+  freq4[1] = 12;
+  freq4[2] = 0;
+  freq4[3] = 0;
+  freq4[4] = 2;
+  freq4[5] = 4;
+  freq4[6] = 1;
+  freq4[7] = 2;
+
+  assert(count_vocab(vocab4, freq4, 8, filename1 , true) == 1);
+  freq4[0] = 2;
+  freq4[1] = 12;
+  freq4[2] = 1;
+  freq4[3] = 1;
+  freq4[4] = 2;
+  freq4[5] = 5;
+  freq4[6] = 2;
+  freq4[7] = 2;
+
+  sort_by_freq(vocab4, freq4, 8); 
+  assert(is_sorted_int(freq4, 0, 8));
+  vocab4[0] = "his";
+  vocab4[1] = "is";
+  vocab4[2] = "winter";
+  vocab4[3] = "burrow";
+  vocab4[4] = "list";
+  vocab4[5] = "out";
+  vocab4[6] = "of";
+  vocab4[7] = "ha";
+
+  string[] vocab5 = alloc_array(string, 6);
+  vocab5[0] = "burrow";
+  vocab5[1] = "his";
+  vocab5[2] = "is";
+  vocab5[3] = "of";
+  vocab5[4] = "out";
+  vocab5[5] = "phil";
+
+  int[] freq5 = alloc_array(int, 6);
+  freq5[0] = 0;
+  freq5[1] = 0;
+  freq5[2] = 0;
+  freq5[3] = 0;
+  freq5[4] = 0;
+  freq5[5] = 0;
+
+  assert(count_vocab(vocab5, freq5, 6, filename1 , true) == 0);
+  freq5[0] = 1;
+  freq5[1] = 1;
+  freq5[2] = 1;
+  freq5[3] = 1;
+  freq5[4] = 1;
+  freq5[5] = 1;
+
+  sort_by_freq(vocab5, freq5, 6);
+  vocab5[0] = "burrow";
+  vocab5[1] = "his";
+  vocab5[2] = "is";
+  vocab5[3] = "of";
+  vocab5[4] = "out";
+  vocab5[5] = "phil";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  println("All tests passed!");
+  return 0;
+}

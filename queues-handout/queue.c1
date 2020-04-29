@@ -1,0 +1,238 @@
+/*
+ * Extended interface of queues
+ *
+ * 15-122 Principles of Imperative Computation
+ */
+
+#use <conio>
+/************************/
+/*** Client interface ***/
+/************************/
+
+typedef void print_data_fn(void* x);            // may be useful for debugging
+typedef bool check_property_fn(void* x);
+typedef void* iterate_fn(void* accum, void* x);
+
+
+/**********************/
+/*** Implementation ***/
+/**********************/
+
+typedef struct list_node list;
+struct list_node {
+  void* data;
+  list* next;
+};
+
+typedef struct queue_header queue;
+struct queue_header {
+  list* front;
+  list* back;
+  int size;
+};
+
+bool is_inclusive_segment(list* start, list* end, int i)
+//@requires i >= 0;
+{   
+    if(start == NULL) 
+        return i == 0;
+    if(start == end) 
+        return i == 1 && start->next == NULL;
+    return is_inclusive_segment(start->next, end, i - 1);
+}
+
+bool is_queue(queue* Q) {
+    if(Q == NULL)
+      return false;
+    if(Q->front == NULL)
+      return Q->size == 0;
+    if(Q->back == NULL)
+      return Q->front == NULL && Q->size == 0;
+    if(Q->front == Q->back)
+      return Q->size == 1 && Q->back->next == NULL;
+    if(Q->size > 0 && Q->back->next != NULL)
+        return false;
+    return is_inclusive_segment(Q->front, Q->back, Q->size);
+}
+
+void print_elem(void* x)
+//@requires \hastag(int*, x);
+{
+  printint(*(int*)x);
+}
+
+void print_queue(queue* Q, print_data_fn* print_data) 
+//@requires is_queue(Q);
+{
+  if(Q->front == NULL) return;
+  for(list* R = Q->front; R != Q->back->next; R = R->next)
+  {
+    if(R->data != NULL)
+      print_elem(R->data);
+      println("");
+  }
+  println("");
+}
+
+queue* queue_new()
+//@ensures is_queue(\result);
+{
+  queue* Q = alloc(queue);
+  Q->front = NULL;
+  Q->back = NULL;
+  Q->size = 0;
+  return Q;
+}
+
+int queue_size(queue* Q)                                /* O(1) */  
+//@requires is_queue(Q);
+//@ensures \result >= 0; 
+{
+  return Q->size;
+}
+
+void enq(queue* Q, void* x)
+//@requires is_queue(Q); 
+//@ensures is_queue(Q);
+{
+  list* new_elem = alloc(list);
+  new_elem->data = x;
+  new_elem->next = NULL;
+
+  if(Q->front == NULL){
+    Q->front = new_elem;
+  }
+  else
+    Q->back->next = new_elem;
+  Q->back = new_elem;
+  Q->size = Q->size + 1;
+}
+
+void* deq(queue* Q)
+//@requires is_queue(Q) && queue_size(Q) > 0;
+//@ensures is_queue(Q);
+{
+  if(queue_size(Q) == 1){
+    void* x = Q->front->data;
+    Q->front = NULL;
+    Q->back = NULL;
+    Q->size = 0;
+    return x;
+  }
+  void* res = Q->front->data;
+  Q->front = Q->front->next;
+  Q->size = Q->size - 1;
+  return res;
+}
+
+void* queue_peek(queue* Q, int i)
+//@requires is_queue(Q) && 0 <= i && i < queue_size(Q); 
+{
+  if(Q->front == NULL){
+    assert(i == 0);
+    return NULL;
+  }
+  list* R = Q->front;
+  void* res = R->data;
+  while(i >= 0){
+    res = R->data;
+    R = R->next;
+    i--;
+  }
+  return res;
+}
+
+void queue_reverse(queue* Q)
+//@requires is_queue(Q);
+//@ensures is_queue(Q);
+{
+  list* prev_node = NULL;
+  list* temp_node = NULL;
+  list* curr_node = Q->front;
+  Q->back = curr_node;
+  while(curr_node != NULL)
+  {
+    temp_node = curr_node->next;
+    curr_node->next = prev_node;
+    prev_node = curr_node;
+    curr_node = temp_node;
+  }
+  Q->front = prev_node;
+}
+
+bool queue_all(queue* Q, check_property_fn* P)
+//@requires is_queue(Q) && P != NULL; 
+{
+  if(queue_size(Q) == 0) 
+    return true;
+  
+  for(list* R = Q->front; R != NULL; R = R->next)
+  {
+    if(!(*P)(R->data))
+      return false;
+  }
+  return true;
+}
+
+void* queue_iterate(queue* Q, void* base, iterate_fn* F)
+//@requires is_queue(Q) && F != NULL; 
+{
+  if(Q->front == NULL && Q->size == 0)
+    return base;
+  else{
+    void* x = base;
+    list* R = Q->front;
+    for(int i = 0; i < Q->size; i++)
+    {
+      x = (*F)(x, R->data);
+      R = R->next;
+    }
+    return x;
+  }
+}
+
+/* Other functions go there */
+
+
+// Client type
+typedef queue* queue_t;
+
+
+/*************************/
+/*** Library interface ***/
+/*************************/
+
+// typedef ______* queue_t;
+
+/* O(1) */
+queue_t queue_new()
+  /*@ensures \result != NULL; @*/ ;
+
+/* O(1) */
+int queue_size(queue_t Q)
+  /*@requires Q != NULL; @*/
+  /*@ensures \result >= 0; @*/ ;
+
+/* O(1) -- adds an item to the back of the queue */
+void enq(queue_t Q, void* x)
+  /*@requires Q != NULL; @*/ ;
+
+/* O(1) -- removes an item from the front of the queue */
+void* deq(queue_t Q)
+  /*@requires Q != NULL && queue_size(Q) > 0; @*/ ;
+
+/* O(i) -- doesn't remove the item from the queue */
+void* queue_peek(queue_t Q, int i)
+  /*@requires Q != NULL && 0 <= i && i < queue_size(Q); @*/ ;
+
+/* O(n) */
+void queue_reverse(queue_t Q)
+  /*@requires Q != NULL; @*/ ;
+
+/* O(n) worst case, assuming P is O(1) */
+bool queue_all(queue_t Q, check_property_fn* P)
+  /*@requires Q != NULL && P != NULL; @*/ ;
+
+/* O(n) worst case, assuming F is O(1) */
+void* queue_iterate(queue_t Q, void* base, iterate_fn* F)
+  /*@requires Q != NULL && F != NULL; @*/ ;
