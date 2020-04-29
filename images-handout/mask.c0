@@ -1,0 +1,88 @@
+//get average of color pixels
+int getValue(pixel_t[] pixels, int index)
+//@requires 0 <= index && index < \length(pixels);
+{
+    pixel_t p = pixels[index];
+    int red = get_red(p);
+    //@assert 0 <= red && red <= 255;
+    int green = get_green(p);
+    //@assert 0 <= green && green <= 255;
+    int blue = get_blue(p);
+    //@assert 0 <= blue && blue <= 255;
+
+    int value = (red + green + blue)/3;
+
+    return value;
+}
+
+//get the value for the examined pixel
+int applyMaskHelper(pixel_t[] pixels, int width, int height,  
+    int[] mask, int maskwidth, int row, int col)
+//@requires 0 <= row && row <= height;
+//@requires 0 <= col && col <= width;
+//@requires is_valid_imagesize(width, height);
+//@requires is_valid_imagesize(maskwidth, maskwidth);
+{   
+    int result = 0;
+    int maskIndex = 0;
+
+    //get values from surrounding pixels
+    for(int r = - (maskwidth / 2); r <= maskwidth / 2; r++)
+    //@loop_invariant r >= - (maskwidth / 2);
+    {   
+        for(int c = - (maskwidth / 2); c <= maskwidth / 2; c++)
+        //@loop_invariant c >= - (maskwidth / 2);
+        {
+            int newRow = row + r;
+            int newCol = col + c;
+
+            //if row and col of surrounding pixel is not out of bound
+            if(0 <= newRow && newRow < height 
+                && 0 <= newCol && newCol < width){
+                    
+                    //newIndex is the index of the surrounding pixel
+                    int newIndex = get_index(newRow, newCol, width, height);
+                    //@assert 0 <= newIndex && newIndex < \length(pixels);
+
+                    //get color avg of selected surrounding pixel
+                    int value = getValue(pixels, newIndex);
+                    value = value * mask[maskIndex];
+                    result += value;
+                }
+
+            maskIndex += 1;
+        }
+    }
+
+    return result;
+}
+
+//function that apply a mask to the image
+int[] apply_mask(pixel_t[] pixels, int width, int height,  
+    int[] mask, int maskwidth)
+//@requires is_valid_imagesize(width, height);
+//@requires is_valid_imagesize(maskwidth, maskwidth);
+//@requires maskwidth % 2 != 0 && \length(mask) == maskwidth * maskwidth;
+//@ensures \length(\result) == \length(pixels);
+{   
+    int[] result = alloc_array(int, width * height);
+
+    for(int row = 0; row < height; row++)
+    //@loop_invariant row >= 0;
+    {
+        for(int col = 0; col < width; col++)
+        //@loop_invariant col >= 0;
+        {
+            //get value of the pixel
+            int num = applyMaskHelper(pixels, width, height, mask, maskwidth, 
+                                      row, col);
+            int index = get_index(row, col, width, height);
+            
+            //declare new values to the same index of the new image
+            result[index] = num;
+
+        }  
+    }
+
+    return result;
+}

@@ -1,0 +1,132 @@
+/*
+ * Augment doubly linked lists with row and column information.
+ *
+ * 15-122 Principles of Imperative Computation */
+
+/*** Interface ***/
+
+typedef struct editor_header editor;
+struct editor_header {
+  tbuf* buffer;
+  int row;
+  int col;
+};
+
+bool is_editor(editor* E);
+
+editor* editor_new();                  /* Creates a new, empty text buffer */
+void editor_forward(editor* E);        /* Moves the cursor forward (right) */
+void editor_backward(editor* E);       /* Moves the cursor backward (left) */
+void editor_insert(editor* E, char c); /* Insert a character before cursor */
+void editor_delete(editor* E);         /* Remove character before cursor   */
+void editor_up(editor* E);             /* Moves the cursor up              */
+void editor_down(editor* E);           /* Moves the cursor down            */
+
+/*** Implementation ***/
+
+//check if editor is valid
+bool is_editor(editor* E){
+  return E != NULL
+         && is_tbuf(E->buffer) //check if tbuf is valid
+         /*check if recorded correct row and col fields 
+         returned by the tbuf_row and the tbuf_col functions.*/
+         && E->row == tbuf_row(E->buffer) 
+         && E->col == tbuf_col(E->buffer); 
+}
+
+//Create a new and empty editor
+editor* editor_new()
+//@ensures is_editor(\result);
+{
+  editor* E = alloc(editor);
+  tbuf* t = tbuf_new(); 
+  int r = 1; 
+  int c = 0;
+
+  E->buffer = t; 
+  E->row = r; 
+  E->col = c;
+
+  return E;
+}
+
+//Move the cursor forward, to the right
+void editor_forward(editor* E)
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+
+  tbuf* t = E->buffer;
+
+  if(!tbuf_at_right(t)){
+    if(t->cursor->data == '\n'){
+      E->row = E->row + 1;
+      E->col = 0;
+    }else{
+      E->col = E->col+1;
+    }  
+    tbuf_forward(t);
+  }
+}
+
+//Move the cursor backward, to the left
+void editor_backward(editor* E)
+//@requires is_editor(E);
+//@ensures is_editor(E) && E->col >= 0;
+{
+  tbuf* t = E->buffer;
+  int c = E->col;
+
+  if(!tbuf_at_left(t)){
+    tbuf_backward(t);
+
+    if(t->cursor->data == '\n'){
+      c = tbuf_col(t);
+      E->col = c;
+      E->row = E->row - 1;
+    }else{
+      E->col = c-1;
+    }
+  }
+}
+
+//Remove the node to the cursor’s left
+void editor_delete(editor* E)
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+
+  tbuf* t = E->buffer;
+  if(!tbuf_at_left(t)){
+    if((t->cursor->prev)->data == '\n'){
+      tbuf_delete(t);
+
+      int c = tbuf_col(t);
+      E->col = c;
+      E->row = E->row - 1;
+    }else{
+      tbuf_delete(t);
+
+      E->col = E->col -1;
+    } 
+  }
+  
+}
+
+//Insert c to the cursor’s left
+void editor_insert(editor* E, char c)
+//@requires is_editor(E);
+//@ensures is_editor(E);
+{
+  tbuf* t = E->buffer;
+  tbuf_insert(t, c);
+
+  if(t->cursor->prev->data == '\n'){
+      E->row = E->row + 1;
+      E->col = 0;
+  }else{
+    E->col = E->col+1;
+  }  
+  
+}
+

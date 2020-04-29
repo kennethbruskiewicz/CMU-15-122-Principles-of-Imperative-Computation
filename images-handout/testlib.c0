@@ -1,0 +1,109 @@
+#use <conio>
+#use <string>
+#use <parse>
+
+/**
+ * Checks if the array A contains no duplicates uo
+ * to but not including n
+ */
+bool contains_no_dupes(int[] A, int n)
+//@requires n <= \length(A);
+{
+    for(int i = 0; i < n; i++) {
+        for(int j = i + 1; j < n; j++) {
+            if(A[i] == A[j]) return false;
+        }
+    }
+    return true;
+}
+
+bool is_sorted(int[] A, int n)
+/*@requires 0 <= n && n <= \length(A); @*/
+{
+  for (int i = 0; i < n-1; i++)
+  //@loop_invariant 0 <= i;
+  {
+    if (A[i+1] < A[i]) return false;
+  }
+  return true;
+}
+
+/**
+ * Prints out a helpful message indicating a test is complete
+ */
+void test_completed(string description, bool success) {
+    print("\t");
+    print(description);
+    print(".... ");
+    if(success) {
+        println("Passed");
+    } else {
+        println("Failed");
+    }
+}
+
+bool arr_eq(int[] A, int n, int[] B, int m)
+//@requires n <= \length(A);
+//@requires m <= \length(B);
+{
+  if(n != m) return false;
+
+  //@assert n == m;
+
+  for (int i = 0; i < n; i++)
+  //@loop_invariant 0 <= i && i <= n;
+  {
+    if (A[i] != B[i]) return false;
+  }
+  return true;
+}
+
+bool is_whitespace(char c) {
+      return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+int[] int_array_from_string(string s)
+{
+    int len = string_length(s);
+    int cur = 0;
+    int n = 0;
+    while (cur < len) {
+        int i = cur;
+        /* skip leading whitespace */
+        while (i < len && is_whitespace(string_charat(s, i))) i++;
+        cur = i;
+        /* find end of token */
+        while (i < len && !is_whitespace(string_charat(s, i))) i++;
+        if (cur < i) n++;
+        cur = i;
+    }
+
+    int[] A = alloc_array(int, n);
+    int c = 0;
+
+    cur = 0;
+    while (cur < len) {
+        int i = cur;
+        while (i < len && is_whitespace(string_charat(s, i))) i++;
+        cur = i;
+        while (i < len && !is_whitespace(string_charat(s, i))) i++;
+        if (cur < i) {
+            int *p;
+            if(cur <= len - 2 &&
+              string_charat(s, cur) == '0' &&
+              (string_charat(s, cur + 1) == 'x' || string_charat(s, cur + 1) == 'X')) {
+                // Hexadecimal!
+                p = parse_int(string_sub(s, cur + 2, i), 16);
+            } else {
+                // Decimal!
+                p = parse_int(string_sub(s, cur, i), 10);
+            }
+            if (p == NULL) error(string_join(string_join("string contains a non-integer: `", string_sub(s, cur, i)), "`"));
+            A[c] = *p;
+            c++;
+        }
+        cur = i;
+    }
+
+    return A;
+}

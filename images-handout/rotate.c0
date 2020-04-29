@@ -1,0 +1,97 @@
+#use <util>
+
+//rotate original image 90 degree to the left
+void rotateTopLeft(pixel_t[] intpixels, pixel_t[] rotatedImg, 
+    int width, int height)
+//@requires \length(rotatedImg) == (width + height) * (width + height); 
+{
+    for(int row = 0; row < height; row++)
+    //@loop_invariant 0 <= row;
+    {
+        for(int col = 0; col < width; col++)
+        //@loop_invariant 0 <= col;
+        {
+            //@assert 0 <= row && row < height && 0 <= col && col < width;
+
+            int newCol = height - row - 1;
+            int newRow = col;
+            //@assert 0 <= newRow && newRow < height; 
+            //@assert 0 <= newCol && newCol < width;
+            //index for new image
+            int newIndex = get_index(row, col, (width + height), 
+                                    (width + height));
+            //index for original image
+            int index = get_index(newRow, newCol, width, height);
+            //@assert 0 <= newIndex && newIndex < \length(rotatedImg);
+            //@assert 0 <= index && index < \length(intpixels);
+
+            //@assert \length(rotatedImg)/4 == \length(intpixels);
+
+            //declare value for old index to the rotated new index
+            rotatedImg[newIndex] = intpixels[index];
+        }
+    }
+}
+
+//image degree is still the same but col is different
+//this function declare new col for the rotated image
+void rotateTopRight(pixel_t[] intpixels, pixel_t[] rotatedImg, 
+    int width, int height)
+//@requires \length(rotatedImg) == (width + height) * (width + height); 
+{
+    for(int row = 0; row < height; row++)
+    //@loop_invariant 0 <= row;
+    {
+        for(int col = width; col < 2*width; col++)
+        //@loop_invariant width <= col;
+        {
+            //@assert 0 <= row && row < height;
+            //@assert width <= col && col < 2 * width;
+
+            int newRow = row; 
+            int newCol = col % width;
+            //@assert 0 <= newRow && newRow < height; 
+            //@assert 0 <= newCol && newCol < width;
+            //index for new image
+            int newIndex = get_index(row, col, (width + height), 
+                                    (width + height));
+            //index for original image
+            int index = get_index(newRow, newCol, width, height);
+            //@assert 0 <= newIndex && newIndex < \length(rotatedImg);
+            //@assert 0 <= index && index < \length(intpixels);
+            //@assert \length(rotatedImg) / 4 == \length(intpixels);
+
+            //declare value for old index to the rotated new index
+            rotatedImg[newIndex] = intpixels[index];
+        }
+    }
+}
+
+//create a rotation effect on an image repeated four times
+pixel_t[] rotate (pixel_t[] intpixels, int width, int height)
+//@requires is_valid_imagesize(width, height);
+//@requires \length(intpixels) == width * height; 
+//@requires width == height;
+{
+    int[] rotatedImg = alloc_array(pixel_t, (width + height)*(width + height));
+
+    rotateTopLeft(intpixels, rotatedImg, width, height);
+    rotateTopRight(intpixels, rotatedImg, width, height);
+
+    //reverse the index of the upper rotated pics (from end to start
+    int i = 0; 
+
+    for(int row = (width + height)/2; row < (width + height); row++){
+        for(int col = 0; col < (width + height); col++){
+
+            int index = get_index(row, col, width + height, width + height); 
+            int newIndex = (width * height * 2) - i - 1;
+            rotatedImg[index] = rotatedImg[newIndex];
+            i++; 
+            
+        }
+    }
+
+    return rotatedImg;
+
+}
