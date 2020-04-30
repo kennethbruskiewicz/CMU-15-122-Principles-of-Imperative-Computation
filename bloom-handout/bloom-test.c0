@@ -1,0 +1,68 @@
+#use <rand>
+#use <util>
+#use <string>
+#use <conio>
+
+// You are welcome to define helper functions for your tests
+
+int main() {
+  // Create a few bloom filters to test CORRECTNESS: here, focus on raising
+  //      assertion errors on any incorrect implementation of the interface
+  int size = 10;
+  bloom_t a = bloom_new(size);
+
+  bloom_add(a, "red");
+  bloom_add(a, "red");
+  bloom_add(a, "RED");
+  assert(bloom_contains(a, "red"));
+  assert(bloom_contains(a, "RED"));
+
+  bloom_add(a, "green");
+  assert(bloom_contains(a, "green"));
+  bloom_add(a, "gray");
+  assert(bloom_contains(a, "gray"));
+  
+  int size2 = 1;
+  bloom_t a2 = bloom_new(size2);
+  bloom_add(a2, "green");
+  assert(bloom_contains(a2, "green"));
+  bloom_add(a2, "black");
+  assert(bloom_contains(a2, "black"));
+  bloom_add(a2, "gray");
+  assert(bloom_contains(a2, "gray"));
+  bloom_add(a2, "red");
+  assert(bloom_contains(a2, "red"));
+  assert(bloom_contains(a2, "green"));
+
+  int size3 = 2;
+  bloom_t a3 = bloom_new(size3);
+  bloom_add(a3, "w");
+  assert(bloom_contains(a3, "w"));
+  bloom_add(a3, "gray");
+  assert(bloom_contains(a3, "gray"));
+  
+  // Create a few boom filters to test PERFORMANCE: this part should
+  //     compute and return a performance score between 0 and 100 that
+  //     assesses how bad or good a bloom filter implementation is
+
+  bloom_t test = bloom_new(10);
+
+  bloom_add(test, "red");
+  assert(bloom_contains(a, "red"));
+  bloom_add(test, "green");
+  assert(bloom_contains(a, "green"));
+  bloom_add(test, "gray");
+  assert(bloom_contains(a, "gray"));
+
+  if (bloom_contains(test, "blue") &&
+      bloom_contains(test, "yellow") &&
+      bloom_contains(test, "orange") &&
+      bloom_contains(test, "purple")) return 0;
+
+  if(!bloom_contains(test, "white") &&
+     !bloom_contains(test, "black")) return 100;
+  else return 50;   
+
+  println("Returning the performance score.");
+  return 0;  // MODIFY ME
+}

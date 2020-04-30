@@ -1,0 +1,122 @@
+#use <rand>
+#use <util>
+#use <string>
+#use <conio>
+
+typedef struct bloom_filter* bloom_t;
+
+struct bloom_filter {  
+    int[] data;  
+    int limit; // limit == \length(data)  
+};  
+
+bool is_correct_length(bloom_t B)
+//@requires \length(B->data) == B->limit;
+{
+    return true;
+}
+
+bool is_bloom(bloom_t B)
+{
+    return B != NULL
+           && B->limit > 0
+           && is_correct_length(B);
+}
+
+bloom_t bloom_new(int n)
+//@requires 0 < n;
+//@ensures is_bloom(\result);
+{
+    bloom_t B = alloc(struct bloom_filter);
+    if(n%32 == 0) n = n/32;
+    else n = n/32 + 1;
+    B->limit = n;
+    B->data = alloc_array(int, n);
+    return B;
+}
+
+int hash1(string x)
+{
+    int n = string_length(x);
+    if(n == 0) return 0;
+    int i = 0;
+    int res = char_ord(string_charat(x, i));
+    i++;
+
+    while(i < n){
+        int ord = char_ord(string_charat(x, i));
+        res = res*31+ord;
+        i++;
+    }
+    return res;
+}
+
+int hash2(string x)
+{
+    int h = 0;
+    rand_t r = init_rand(0x1337BEEF);
+    for(int i = 0; i < string_length(x); i++){
+        int ch = char_ord(string_charat(x, i));
+        h = rand(r) * h;
+        h = h + ch;
+    }
+    return h;
+}
+
+int hash3(string x)
+{
+    int n = string_length(x);
+    if(n == 0) return 0;
+    int i = 0;
+    int res = char_ord(string_charat(x, i)) * 1664525 + 1013904223;
+    for(i = 1; i < n; i++){
+        res = (char_ord(string_charat(x, i)) + res) * 1664525 + 1013904223;
+    }
+    return res;
+}
+
+bool get_bit(int[] A, int i)  
+//@requires 0 <= i && i/32 < \length(A);  
+{
+    int index_bit = i % 32;
+    int value = A[i / 32];
+
+    int bit = (value >> index_bit) & 0x00000001;
+    if(bit == 1) return true;
+    return false;
+}
+
+void set_bit(int[] A, int i)  
+/*@requires 0 <= i && i/32 < \length(A); @*/  
+//@ensures get_bit(A, i);
+{
+    int index_bit = i % 32;
+    int value = A[i / 32];
+
+    int res = ((value >> index_bit) | 0x00000001) << index_bit;
+    A[i / 32] = res | value;
+} 
+
+void bloom_add(bloom_t B, string x)
+//@requires is_bloom(B);
+//@ensures is_bloom(B);
+{
+    int index1 = abs(hash1(x)%32);
+    int index2 = abs(hash2(x)%32);
+    int index3 = abs(hash3(x)%32);
+    set_bit(B->data, index1);
+    set_bit(B->data, index2);
+    set_bit(B->data, index3);
+}
+
+bool bloom_contains(bloom_t B, string x)
+//@requires is_bloom(B);
+{
+    int index1 = abs((hash1(x)%32));
+    int index2 = abs((hash2(x)%32));
+    int index3 = abs((hash3(x)%32));
+    return get_bit(B->data, index1) 
+           && get_bit(B->data, index2)
+           && get_bit(B->data, index3);
+}
+

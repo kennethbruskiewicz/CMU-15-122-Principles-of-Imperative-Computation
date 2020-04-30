@@ -1,0 +1,30 @@
+#use <conio>
+
+int main() {
+  // Create a few arrays of integers
+  int[] a = alloc_array(int, 2);
+  a[0] = 0xFFFFFFFF;
+  a[1] = 0x00000000;
+
+  // Using them, test the functions test get_bit and set_bit
+  assert(get_bit(a, 0));
+  assert(get_bit(a, 15));
+  assert(get_bit(a, 31));
+  assert(!get_bit(a, 32));
+  assert(!get_bit(a, 63));
+  assert(!get_bit(a, 48));
+  set_bit(a, 32);
+  set_bit(a, 63);
+  set_bit(a, 48);
+  assert(get_bit(a, 32));
+  assert(get_bit(a, 63));
+  assert(get_bit(a, 48));
+
+  int[] b = alloc_array(int, 1);
+  b[0] = 0x00000002;
+  assert(get_bit(b, 1));
+  assert(!get_bit(b, 3));
+
+  println("All tests passed!");
+  return 0;
+}
