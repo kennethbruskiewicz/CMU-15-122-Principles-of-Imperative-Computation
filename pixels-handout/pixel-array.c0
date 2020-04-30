@@ -1,0 +1,60 @@
+#use <util>
+#use <string>
+#use <conio>
+
+
+typedef int[] pixel;     // Library (concrete) view of a pixel
+
+pixel make_pixel(int alpha, int red, int green, int blue)
+//Not including other contracts here as this is part of assignment
+//@ensures \length(\result) == 4;
+{
+  pixel p = alloc_array(int, 4);
+  p[0] = alpha;
+  p[1] = red;
+  p[2] = green;
+  p[3] = blue;
+  return p;
+}
+
+int get_alpha(pixel p)
+//@requires \length(p) == 4;
+//Not including other contracts here as this is part of assignment
+{
+  return p[0];
+}
+
+int get_red(pixel p)
+//@requires \length(p) == 4;
+//Not including other contracts here as this is part of assignment
+{
+  return p[1];
+}
+
+int get_green(pixel p)
+//@requires \length(p) == 4;
+//Not including other contracts here as this is part of assignment
+{
+  return p[2];
+}
+
+int get_blue(pixel p)
+//@requires \length(p) == 4;
+//Not including other contracts here as this is part of assignment
+{
+  return p[3];
+}
+
+
+// Do not write code below this line
+
+// Prints a pixel to terminal, one channel at a time
+//   You don't need to understand how this works
+void pixel_print(pixel p) {
+  print(string_sub(int2hex(get_alpha(p)), 6, 8)); flush();  // alpha
+  print(string_sub(int2hex(get_red(p)),   6, 8)); flush();  // red
+  print(string_sub(int2hex(get_green(p)), 6, 8)); flush();  // green
+  print(string_sub(int2hex(get_blue(p)),  6, 8)); flush();  // blue
+}
+
+typedef pixel pixel_t;   // Client (abstract) view of a pixel

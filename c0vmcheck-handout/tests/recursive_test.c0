@@ -1,0 +1,15 @@
+#use <string>
+
+#use <conio>
+
+#use <parse>
+
+int recursive(int x, int num){
+    return x * recursive(x, num-1);
+}
+
+int main(){
+    int a = 7;
+    int res = recursive(a, 1000000);
+    return res;
+}

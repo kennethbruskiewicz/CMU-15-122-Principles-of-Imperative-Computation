@@ -1,0 +1,53 @@
+#use <util>
+#use <conio>
+
+// You are welcome to define helper functions for your tests
+
+int main() {
+  // Run some edge cases (check for contract errors only)
+  make_pixel(0,0,0,0);
+  make_pixel(255,255,255,255);
+  make_pixel(0,0,255,255);
+
+  get_blue(0xFFFFFFFF);
+  get_blue(0x0);
+
+  get_red(0xFFFFFFFF);
+  get_red(0x0);
+
+  get_green(0xFFFFFFFF);
+  get_green(0x0);
+
+  get_alpha(0xFFFFFFFF);
+  get_alpha(0x0);
+
+    // Test some regular cases (check for contract errors & exploits)
+  assert(make_pixel(255,238,127,45) == -1147091);
+  assert(make_pixel(1,2,3,4) == 0x01020304);
+  assert(make_pixel(255,255,255,255) == 0xFFFFFFFF);
+
+  assert(get_green(0x123412FF) == 18); 
+  assert(get_green(0x5566FF77) == 255); 
+  assert(get_green(0x15122222) == 0x22); 
+
+
+  //#2 contract failure
+  assert(get_alpha(0xFF000000) == 0xFF);
+  assert(get_alpha(0x01000000) == 0x01);
+  assert(get_alpha(0x80000000) == 0x80);
+  assert(get_alpha(0x00000022) == 0x00);
+
+
+  //#3 contract exploit
+  assert(get_blue(0xFFFFFFFF) == 0xFF);
+  assert(get_blue(0x00000001) == 0x01);
+  assert(get_blue(0x00000080) == 0x80);
+
+  assert(get_red(0x12345678) == 52);
+  assert(get_red(0x87654321) == 101);
+  assert(get_red(0x00110080) == 0x11);
+
+
+  println("All tests passed!");
+  return 0;
+}
